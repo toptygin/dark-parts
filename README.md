@@ -1,4 +1,4 @@
 dark-parts
 ==========
 
-A libGtx game experiment
+A libGdx game experiment
