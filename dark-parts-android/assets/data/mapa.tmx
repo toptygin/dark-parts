@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="pubdlcnt.php" tilewidth="32" tileheight="32">
+  <image source="./test_tileset.png" width="2239" height="2235"/>
+ </tileset>
+ <layer name="Vrstva dlaždic 1" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt2EluAyEUBFBuEMn7rDKcLYOSs/jIQcrWsQ3dQCn9Fm9vfej6hc+llDOEejqV8ly9VK+n9b/n6N7qGbxXH9Wn81juq57B48Ovb+cB8O/pRVn0oix6EWxnz2SxZ7K07BnfUhbfUhadDRjJDs5iB2exgwHguPTkLHpyn1H3WE/uM/Mey7DbZt5jGZZFhgEr2dFZc7aj57h3znb0HOYMANzi3ZI1S++W/ewxS316P9dmKYeyyKEscmgb+ZJFvmSRLwAAHIn3YRbvwyxb34e+ryy+ryz+fxlvVAbJtj6jMki29RmVQbINAACOwds4y6q3sXtw2aq3sf9I+o24y/4j6ddyl+XQeC13WQ5lkUMA3EOfytLap5zf2Bm19il9OGtG+rAZAZBLj82asR47fvYtM9bR9nVp9ma8jtlDDn0sa+b62HzXZm5fzWfm/OUHRCOrXg==
+  </data>
+ </layer>
+</map>
