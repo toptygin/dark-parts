@@ -20,7 +20,7 @@ public class Play implements Screen {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
-	private int cameraMovePx = 30;
+	private int CAMERAMOVEPX = 30;
 	
 	@Override
 	public void render(float delta) {
@@ -31,10 +31,11 @@ public class Play implements Screen {
 		
 		// Here is the code for moving the camera as of now, later it will should
 		// be enhanced to make possible moving the main character
-		if(Gdx.input.isKeyPressed(Keys.W)) camera.translate(0, cameraMovePx * Gdx.graphics.getDeltaTime()); 
-		if(Gdx.input.isKeyPressed(Keys.S)) camera.translate(0, -cameraMovePx * Gdx.graphics.getDeltaTime());
-		if(Gdx.input.isKeyPressed(Keys.D)) camera.translate(cameraMovePx * Gdx.graphics.getDeltaTime(), 0);
-		if(Gdx.input.isKeyPressed(Keys.A)) camera.translate(-cameraMovePx * Gdx.graphics.getDeltaTime(), 0);
+		if(Gdx.input.isKeyPressed(Keys.W)) camera.translate(0, CAMERAMOVEPX * Gdx.graphics.getDeltaTime()); 
+		if(Gdx.input.isKeyPressed(Keys.S)) camera.translate(0, -CAMERAMOVEPX * Gdx.graphics.getDeltaTime());
+		if(Gdx.input.isKeyPressed(Keys.D)) camera.translate(CAMERAMOVEPX * Gdx.graphics.getDeltaTime(), 0);
+		if(Gdx.input.isKeyPressed(Keys.A)) camera.translate(-CAMERAMOVEPX * Gdx.graphics.getDeltaTime(), 0);
+		
 		camera.update();
 		
 		renderer.render();
@@ -50,7 +51,7 @@ public class Play implements Screen {
 	@Override
 	public void show() {
 		TmxMapLoader loader = new TmxMapLoader();
-		map = loader.load("data/mapa.tmx");
+		map = loader.load("maps/mapa.tmx");
 		
 		renderer = new OrthogonalTiledMapRenderer(map);
 		
