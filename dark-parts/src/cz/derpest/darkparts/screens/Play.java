@@ -1,13 +1,16 @@
 package cz.derpest.darkparts.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+
+import cz.derpest.darkparts.entities.Player;
 
 /**
  * 
@@ -20,7 +23,7 @@ public class Play implements Screen {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	private OrthographicCamera camera;
-	private int CAMERAMOVEPX = 30;
+	private Player player;
 	
 	@Override
 	public void render(float delta) {
@@ -28,17 +31,11 @@ public class Play implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		renderer.setView(camera);
-		
-		// Here is the code for moving the camera as of now, later it will should
-		// be enhanced to make possible moving the main character
-		if(Gdx.input.isKeyPressed(Keys.W)) camera.translate(0, CAMERAMOVEPX * Gdx.graphics.getDeltaTime()); 
-		if(Gdx.input.isKeyPressed(Keys.S)) camera.translate(0, -CAMERAMOVEPX * Gdx.graphics.getDeltaTime());
-		if(Gdx.input.isKeyPressed(Keys.D)) camera.translate(CAMERAMOVEPX * Gdx.graphics.getDeltaTime(), 0);
-		if(Gdx.input.isKeyPressed(Keys.A)) camera.translate(-CAMERAMOVEPX * Gdx.graphics.getDeltaTime(), 0);
-		
-		camera.update();
-		
 		renderer.render();
+		
+		renderer.getSpriteBatch().begin();
+		player.draw(renderer.getSpriteBatch());
+		renderer.getSpriteBatch().end();
 	}
 
 	@Override
@@ -57,6 +54,11 @@ public class Play implements Screen {
 		
 		camera = new OrthographicCamera();
 		camera.translate(1700, 2350);
+		
+		player = new Player(new Sprite(new Texture("character_sprites/witch.png")));
+		Gdx.input.setInputProcessor(player);
+		player.setX(1700);
+		player.setY(2350);
 	}
 
 	@Override
@@ -80,6 +82,7 @@ public class Play implements Screen {
 	public void dispose() {
 		map.dispose();
 		renderer.dispose();
+		player.getTexture().dispose();
 	}
 
 }
