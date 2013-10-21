@@ -5,14 +5,28 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player extends Sprite implements InputProcessor{
+	
+	//TODO Fix the ability of player to slowly dig trough blocked tiles
 
 	public static final String TAG = "Player";
 
-	private Vector2 velocity = new Vector2(0, 0);
-	private float speed = 60 * 2; // <- pixels per second
+	private Vector2 velocity = new Vector2(0, 0);	
+	private float speed = 60 * 2; // <- pixels per second	
+	private boolean zoomedOut = false;
+	private float zoom = 1.5f;
+	private TiledMapTileLayer collisionLayer;
+	private float increment;
+	private String blockedKey = "blocked";
+	
+	public Player(Sprite sprite, TiledMapTileLayer collisionLayer) {
+		super(sprite);
+		this.collisionLayer =  collisionLayer;
+	}
 	
 	@Override
 	public void draw(SpriteBatch spriteBatch) {
@@ -20,19 +34,87 @@ public class Player extends Sprite implements InputProcessor{
 		super.draw(spriteBatch);
 	}
 	
+	//Most of the body of this update function belongs to Dermetfan 
+	//taken from here: "http://pastebin.com/3Fu03cns"
 	public void update(float delta){
-		setX(getX() + velocity.x * delta);
-		setY(getY() + velocity.y * delta);
+		// save old position
+        float oldX = getX(), oldY = getY();
+        boolean collisionX = false, collisionY = false;
+ 
+        // move on x
+        setX(getX() + velocity.x * delta);
+ 
+        // calculate the increment for step in #collidesLeft() and #collidesRight()
+        increment = collisionLayer.getTileWidth();
+        increment = getWidth() < increment ? getWidth() / 2 : increment / 2;
+ 
+        if(velocity.x < 0) // going left
+                collisionX = collidesLeft();
+        else if(velocity.x > 0) // going right
+                collisionX = collidesRight();
+ 
+        // react to x collision
+        if(collisionX) {
+                setX(oldX);
+                velocity.x = 0;
+        }
+ 
+        // move on y
+        setY(getY() + velocity.y * delta);
+ 
+        // calculate the increment for step in #collidesBottom() and #collidesTop()
+        increment = collisionLayer.getTileHeight();
+        increment = getHeight() < increment ? getHeight() / 2 : increment / 2;
+ 
+        
+        if(velocity.y < 0) // going left
+            collisionY = collidesBottom();
+        else if(velocity.y > 0) // going right
+            collisionY = collidesTop();
+        // react to y collision
+        if(collisionY) {
+                setY(oldY);
+                velocity.y = 0;
+        }
 	}
-
-	public Player(Sprite sprite) {
-		super(sprite);
-		// TODO Auto-generated constructor stub
+	 
+	private boolean isCellBlocked(float x, float y) {
+		Cell cell = collisionLayer.getCell((int) (x / collisionLayer.getTileWidth()), (int) (y / collisionLayer.getTileHeight()));
+		return cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(blockedKey);
+	}
+	 
+	public boolean collidesRight() {
+	        for(float step = 0; step <= getHeight(); step += increment)
+	                if(isCellBlocked(getX() + getWidth(), getY() + step))
+	                        return true;
+	        return false;
+	}
+	 
+	public boolean collidesLeft() {
+	        for(float step = 0; step <= getHeight(); step += increment)
+	                if(isCellBlocked(getX(), getY() + step))
+	                        return true;
+	        return false;
+	}
+	 
+	public boolean collidesTop() {
+	        for(float step = 0; step <= getWidth(); step += increment)
+	                if(isCellBlocked(getX() + step, getY() + getHeight()))
+	                        return true;
+	        return false;
+	}
+	 
+	public boolean collidesBottom() {
+	        for(float step = 0; step <= getWidth(); step += increment)
+	                if(isCellBlocked(getX() + step, getY()))
+	                        return true;
+	        return false;
 	}
 
 	@Override
 	public boolean keyDown(int keycode) {
-		Gdx.app.log(TAG, "The keycode is:" + keycode);
+		//For logging key input
+		//Gdx.app.log(TAG, "The keycode is:" + keycode);
 		switch (keycode) {
 		case Keys.W:
 			velocity.y = speed;
@@ -46,7 +128,10 @@ public class Player extends Sprite implements InputProcessor{
 		case Keys.D:
 			velocity.x = speed;
 			break;
-		}
+		case Keys.SHIFT_LEFT:
+			zoomedOut = !zoomedOut;
+			break;
+		}	
 		return true;
 	}
 
@@ -103,6 +188,22 @@ public class Player extends Sprite implements InputProcessor{
 	public boolean scrolled(int amount) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public boolean isZoomedOut() {
+		return zoomedOut;
+	}
+
+	public void setZoomedOut(boolean zoomedOut) {
+		this.zoomedOut = zoomedOut;
+	}
+
+	public float getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(float zoom) {
+		this.zoom = zoom;
 	}
 
 }
