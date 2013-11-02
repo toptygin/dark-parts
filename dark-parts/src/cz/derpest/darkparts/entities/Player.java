@@ -7,13 +7,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player extends Sprite implements InputProcessor{
 	
-	//TODO Fix the ability of player to slowly dig trough blocked tiles
+	//TODO HitBoxes, stop player from getting stuck agains a tree, make a hitbox draw function
 
 	public static final String TAG = "Player";
+	public static final float hitBoxWidth = 48;
+	public static final float hitBoxHeight = 64;
 
 	private Vector2 velocity = new Vector2(0, 0);	
 	private float speed = 60 * 2; // <- pixels per second	
@@ -22,10 +25,12 @@ public class Player extends Sprite implements InputProcessor{
 	private TiledMapTileLayer collisionLayer;
 	private float increment;
 	private String blockedKey = "blocked";
+	private Rectangle hitBox;
 	
 	public Player(Sprite sprite, TiledMapTileLayer collisionLayer) {
 		super(sprite);
 		this.collisionLayer =  collisionLayer;
+		hitBox = new Rectangle(this.getX() + (this.getWidth() - hitBoxWidth)/2,this.getY() + (this.getHeight() - hitBoxHeight)/2, hitBoxWidth, hitBoxHeight);
 	}
 	
 	@Override
@@ -46,7 +51,8 @@ public class Player extends Sprite implements InputProcessor{
  
         // calculate the increment for step in #collidesLeft() and #collidesRight()
         increment = collisionLayer.getTileWidth();
-        increment = getWidth() < increment ? getWidth() / 2 : increment / 2;
+        increment = hitBox.getWidth() < increment ? hitBox.getWidth() / 2 : increment / 2;
+        
  
         if(velocity.x < 0) // going left
                 collisionX = collidesLeft();
@@ -57,6 +63,7 @@ public class Player extends Sprite implements InputProcessor{
         if(collisionX) {
                 setX(oldX);
                 velocity.x = 0;
+                Gdx.app.log(TAG, "Collides on X");
         }
  
         // move on y
@@ -64,7 +71,7 @@ public class Player extends Sprite implements InputProcessor{
  
         // calculate the increment for step in #collidesBottom() and #collidesTop()
         increment = collisionLayer.getTileHeight();
-        increment = getHeight() < increment ? getHeight() / 2 : increment / 2;
+        increment = hitBox.getHeight() < increment ? hitBox.getHeight() / 2 : increment / 2;
  
         
         if(velocity.y < 0) // going left
@@ -75,38 +82,42 @@ public class Player extends Sprite implements InputProcessor{
         if(collisionY) {
                 setY(oldY);
                 velocity.y = 0;
+                Gdx.app.log(TAG, "Collides on Y");
         }
+        //update the hitBox location
+        hitBox.setX(this.getX() + (this.getWidth() - hitBoxWidth)/2);
+        hitBox.setY(this.getY() + (this.getHeight() - hitBoxHeight)/2);
 	}
-	 
+	//TODO Here might be the error 
 	private boolean isCellBlocked(float x, float y) {
 		Cell cell = collisionLayer.getCell((int) (x / collisionLayer.getTileWidth()), (int) (y / collisionLayer.getTileHeight()));
 		return cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(blockedKey);
 	}
 	 
 	public boolean collidesRight() {
-	        for(float step = 0; step <= getHeight(); step += increment)
-	                if(isCellBlocked(getX() + getWidth(), getY() + step))
+	        for(float step = 0; step <= hitBox.getHeight(); step += increment)
+	                if(isCellBlocked(hitBox.getX() + hitBox.getWidth(), hitBox.getY() + step))
 	                        return true;
 	        return false;
 	}
 	 
 	public boolean collidesLeft() {
-	        for(float step = 0; step <= getHeight(); step += increment)
-	                if(isCellBlocked(getX(), getY() + step))
+	        for(float step = 0; step <= hitBox.getHeight(); step += increment)
+	                if(isCellBlocked(hitBox.getX(), hitBox.getY() + step))
 	                        return true;
 	        return false;
 	}
 	 
 	public boolean collidesTop() {
-	        for(float step = 0; step <= getWidth(); step += increment)
-	                if(isCellBlocked(getX() + step, getY() + getHeight()))
+	        for(float step = 0; step <= hitBox.getWidth(); step += increment)
+	                if(isCellBlocked(hitBox.getX() + step, hitBox.getY() + hitBox.getHeight()))
 	                        return true;
 	        return false;
 	}
 	 
 	public boolean collidesBottom() {
-	        for(float step = 0; step <= getWidth(); step += increment)
-	                if(isCellBlocked(getX() + step, getY()))
+	        for(float step = 0; step <= hitBox.getWidth(); step += increment)
+	                if(isCellBlocked(hitBox.getX() + step, hitBox.getY()))
 	                        return true;
 	        return false;
 	}
@@ -130,6 +141,11 @@ public class Player extends Sprite implements InputProcessor{
 			break;
 		case Keys.SHIFT_LEFT:
 			zoomedOut = !zoomedOut;
+			break;
+		case Keys.I:
+			Gdx.app.log(TAG, "Sprite x:" + this.getX()+"\n Sprite y: " + this.getY());
+			Gdx.app.log(TAG, "Hitbox x:" + hitBox.getX()+"\n Hitbox y: " + hitBox.getY());
+			Gdx.app.log(TAG, "Hitbox width:"+ hitBox.getWidth() + "Height"+ hitBox.getHeight());
 			break;
 		}	
 		return true;
